@@ -600,14 +600,16 @@ function chgPwd(){
   setTimeout(function(){ m.style.display="none"; },3000);
 }
 
-function uploadLogo(e){
-  var f=e.target.files[0]; if(!f) return;
-  var r=new FileReader();
-  r.onload=function(ev){
-    setLogoUI(ev.target.result);
-    save_ls("bwa_logo",ev.target.result);
-  };
-  r.readAsDataURL(f);
+function uploadLogo(){
+
+  var url = prompt("Paste GitHub image URL");
+
+  if(!url) return;
+
+  setLogoUI(url);
+
+  localStorage.setItem("bwa_logo", url);
+
 }
 function setLogoUI(src){
   document.getElementById("logo-im").src=src;
@@ -616,14 +618,16 @@ function setLogoUI(src){
   document.getElementById("logo-bdg").style.display="flex";
 }
 
-function uploadMenu(e){
-  var f=e.target.files[0]; if(!f) return;
-  var r=new FileReader();
-  r.onload=function(ev){
-    save_ls("bwa_menu",ev.target.result);
-    setMenuUI(ev.target.result);
-  };
-  r.readAsDataURL(f);
+function uploadMenu(){
+
+  var url = prompt("Paste GitHub image URL");
+
+  if(!url) return;
+
+  setMenuUI(url);
+
+  localStorage.setItem("bwa_menu", url);
+
 }
 function setMenuUI(src){
   document.getElementById("menu-prev-im").src=src;
@@ -1042,10 +1046,34 @@ async function saveAll(){
   document.getElementById("bsb").textContent=C.tag;
   document.title=C.brand;
   actA=new Set(); selP=0; selL="b"; selW=0;
-  var data={brand:C.brand,tag:C.tag,wa:C.wa,wE:C.wE,
-    bgColor:C.bgColor,bgOp:C.bgOp,ovOp:C.ovOp,
-    bnkNm:C.bnkNm,acNm:C.acNm,acNo:C.acNo,ib:C.ib,bnot:C.bnot,
-    wts:C.wts,prods:C.prods,lvls:C.lvls,addons:C.addons,pwd:PWD};
+  var data={
+  brand:C.brand,
+  tag:C.tag,
+  wa:C.wa,
+  wE:C.wE,
+
+  bgColor:C.bgColor,
+  bgOp:C.bgOp,
+  ovOp:C.ovOp,
+
+  bnkNm:C.bnkNm,
+  acNm:C.acNm,
+  acNo:C.acNo,
+  ib:C.ib,
+  bnot:C.bnot,
+
+  wts:C.wts,
+  prods:C.prods,
+  lvls:C.lvls,
+  addons:C.addons,
+
+  pwd:PWD,
+
+  logo: localStorage.getItem("bwa_logo") || "",
+
+  menu: localStorage.getItem("bwa_menu") || ""
+
+};
   save_ls("bwa_cfg",JSON.stringify(data));
   await window.saveCloudSettings(data);
   renderAll();
@@ -1156,6 +1184,7 @@ window.saveCloudSettings = async function(data){
     data
   );
   alert("Saved to cloud successfully!");
+  
 }
 
 window.loadCloudSettings = async function(){
@@ -1164,7 +1193,16 @@ window.loadCloudSettings = async function(){
   );
 
   if(snap.exists()){
+
     applyData(snap.data());
+
+    if(snap.data().logo){
+      setLogoUI(snap.data().logo);
+    }
+
+    if(snap.data().menu){
+      setMenuUI(snap.data().menu);
+    }
 
     document.getElementById("bnm").textContent=C.brand;
     document.getElementById("bsb").textContent=C.tag;
@@ -1172,7 +1210,7 @@ window.loadCloudSettings = async function(){
     renderAll();
 
     console.log("Cloud data loaded.");
-  }
+}
 }
 
 window.addEventListener("load", async ()=>{
